@@ -1,0 +1,4 @@
+CREATE TABLE sections (
+    id SERIAL PRIMARY KEY ,
+    volume SMALLINT NOT NULL
+);
