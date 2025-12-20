@@ -21,6 +21,7 @@ func (p *IncomePostgres) CreateGoods(c *fiber.Ctx, good model.Good) (uint, error
 	if err != nil {
 		return 0, err
 	}
+	defer tx.Rollback()
 
 	var id uint
 
@@ -28,21 +29,11 @@ func (p *IncomePostgres) CreateGoods(c *fiber.Ctx, good model.Good) (uint, error
 	row := p.db.QueryRowContext(c.Context(), query, good.Name, good.Description, good.Volume)
 
 	if row.Err() != nil {
-		err = tx.Rollback()
-		if err != nil {
-			return 0, err
-		}
-
 		return 0, row.Err()
 	}
 
 	err = row.Scan(&id)
 	if err != nil {
-		err = tx.Rollback()
-		if err != nil {
-			return 0, err
-		}
-
 		return 0, err
 	}
 
@@ -54,13 +45,13 @@ func (p *IncomePostgres) GetAll(c *fiber.Ctx) ([]model.Good, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
 
 	var goods []model.Good
 
 	query := fmt.Sprintf("SELECT * FROM %s ORDER BY id DESC", goodsTable)
 	err = p.db.SelectContext(c.Context(), &goods, query)
 	if err != nil {
-		_ = tx.Rollback()
 		return nil, err
 	}
 
@@ -72,38 +63,24 @@ func (p *IncomePostgres) Income(c *fiber.Ctx, income model.Income) (uint, error)
 	if err != nil {
 		return 0, err
 	}
+	defer tx.Rollback()
 
 	var id uint
 
 	query := fmt.Sprintf("INSERT INTO %s (goods_id, section_id, goods_count, contractors_id) VALUES ($1, $2, $3, $4) RETURNING id", incomeTable)
 	row := p.db.QueryRowContext(c.Context(), query, income.GoodsID, income.SectionID, income.GoodsCount, income.ContractorsID)
 	if row.Err() != nil {
-		err = tx.Rollback()
-		if err != nil {
-			return 0, err
-		}
-
 		return 0, row.Err()
 	}
 
 	err = row.Scan(&id)
 	if err != nil {
-		err = tx.Rollback()
-		if err != nil {
-			return 0, err
-		}
-
 		return 0, err
 	}
 
 	query = fmt.Sprintf("INSERT INTO %s (operation_type, operation_id, goods_count) VALUES ($1, $2, $3)", businessOperationTable)
 	row = p.db.QueryRowContext(c.Context(), query, "+", id, income.GoodsCount)
 	if row.Err() != nil {
-		err = tx.Rollback()
-		if err != nil {
-			return 0, err
-		}
-
 		return 0, row.Err()
 	}
 
@@ -115,49 +92,24 @@ func (p *IncomePostgres) Outflow(c *fiber.Ctx, outflow model.Outflow) (uint, err
 	if err != nil {
 		return 0, err
 	}
+	defer tx.Rollback()
 
 	var id uint
 
 	query := fmt.Sprintf("INSERT INTO %s (goods_id, goods_count, contractors_id, section_id) VALUES ($1, $2, $3, $4) RETURNING id", outflowTable)
 	row := p.db.QueryRowContext(c.Context(), query, outflow.GoodsID, outflow.GoodsCount, outflow.ContractorsID, outflow.SectionID)
 	if row.Err() != nil {
-		err = tx.Rollback()
-		if err != nil {
-			return 0, err
-		}
-
 		return 0, row.Err()
 	}
 
 	err = row.Scan(&id)
 	if err != nil {
-		err = tx.Rollback()
-		if err != nil {
-			return 0, err
-		}
-
 		return 0, err
 	}
 
 	query = fmt.Sprintf("INSERT INTO %s (operation_type, operation_id, goods_count) VALUES ($1, $2, $3)", businessOperationTable)
 	row = p.db.QueryRowContext(c.Context(), query, "-", id, outflow.GoodsCount)
 	if row.Err() != nil {
-		err = tx.Rollback()
-		if err != nil {
-			return 0, err
-		}
-
-		return 0, row.Err()
-	}
-
-	query = fmt.Sprintf("UPDATE %s SET goods_count = %d WHERE goods_id = %d AND section_id = %d", remainsTable, outflow.GoodsCount, outflow.GoodsID, outflow.SectionID)
-	_, err = p.db.ExecContext(c.Context(), query)
-	if err != nil {
-		err = tx.Rollback()
-		if err != nil {
-			return 0, err
-		}
-
 		return 0, row.Err()
 	}
 
@@ -169,27 +121,17 @@ func (p *IncomePostgres) CreateContractor(c *fiber.Ctx, contractor model.Contrac
 	if err != nil {
 		return 0, err
 	}
+	defer tx.Rollback()
 
 	var id uint
-
 	query := fmt.Sprintf("INSERT INTO %s (name, inn, type) VALUES ($1, $2, $3) RETURNING id", contractorTable)
 	row := p.db.QueryRowContext(c.Context(), query, contractor.Name, contractor.INN, contractor.Type)
 	if row.Err() != nil {
-		err = tx.Rollback()
-		if err != nil {
-			return 0, err
-		}
-
 		return 0, row.Err()
 	}
 
 	err = row.Scan(&id)
 	if err != nil {
-		err = tx.Rollback()
-		if err != nil {
-			return 0, err
-		}
-
 		return 0, err
 	}
 
@@ -201,36 +143,55 @@ func (p *IncomePostgres) GetBusinessOperations(c *fiber.Ctx) ([]model.BusinessOp
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
 
 	var allOperations []model.BusinessOperation
 
 	query := fmt.Sprintf("SELECT * FROM %s;", businessOperationTable)
 	err = p.db.SelectContext(c.Context(), &allOperations, query)
 	if err != nil {
-		_ = tx.Rollback()
 		return nil, err
 	}
 
+	var result []model.BusinessOperation
 	for _, operation := range allOperations {
+		var body struct {
+			ID            int    `json:"id" db:"id"`
+			GoodsID       int    `json:"goods_id" db:"goods_id"`
+			SectionID     int    `json:"section_id" db:"section_id"`
+			GoodsCount    int    `json:"goods_count" db:"goods_count"`
+			ContractorsID int    `json:"contractors_id" db:"contractors_id"`
+			Date          string `json:"date" db:"date"`
+		}
 		if operation.OperationType == "+" {
 			query = fmt.Sprintf("SELECT * FROM %s WHERE id = %d;", incomeTable, operation.OperationID)
-			err = p.db.GetContext(c.Context(), &operation, query)
+			err = p.db.GetContext(c.Context(), &body, query)
 			if err != nil {
-				_ = tx.Rollback()
 				return nil, err
 			}
 		} else if operation.OperationType == "-" {
 			query = fmt.Sprintf("SELECT * FROM %s WHERE id = %d;", outflowTable, operation.OperationID)
-			err = p.db.GetContext(c.Context(), &operation, query)
+			err = p.db.GetContext(c.Context(), &body, query)
 			if err != nil {
-				_ = tx.Rollback()
 				return nil, err
 			}
 		}
 
+		operation.GoodsID = body.GoodsID
+		operation.SectionID = body.SectionID
+		operation.GoodsCount = body.GoodsCount
+		operation.ContractorsID = body.ContractorsID
+
+		query = fmt.Sprintf("SELECT * FROM %s WHERE id = %d;", contractorTable, operation.ContractorsID)
+		err = p.db.GetContext(c.Context(), &operation.Contractor, query)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, operation)
 	}
 
-	return allOperations, tx.Commit()
+	return result, tx.Commit()
 }
 
 func (p *IncomePostgres) CreateSection(c *fiber.Ctx, section model.Section) (uint, error) {
@@ -239,26 +200,18 @@ func (p *IncomePostgres) CreateSection(c *fiber.Ctx, section model.Section) (uin
 		return 0, err
 	}
 
+	defer tx.Rollback()
+
 	var id uint
 
 	query := fmt.Sprintf("INSERT INTO %s (volume) VALUES ($1) RETURNING id", sectionsTable)
 	row := p.db.QueryRowContext(c.Context(), query, section.Volume)
 	if row.Err() != nil {
-		err = tx.Rollback()
-		if err != nil {
-			return 0, err
-		}
-
 		return 0, row.Err()
 	}
 
 	err = row.Scan(&id)
 	if err != nil {
-		err = tx.Rollback()
-		if err != nil {
-			return 0, err
-		}
-
 		return 0, err
 	}
 
