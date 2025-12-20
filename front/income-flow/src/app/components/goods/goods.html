@@ -1,0 +1,13 @@
+<section>
+  <h1>Товары</h1>
+
+  <ul>
+    @for (good of goods; track good.id) {
+      <li>
+        <span>Название: {{good.name}}</span> <span>Описание: {{good.description}}</span> <span>Объём: {{good.volume}}</span>
+      </li>
+    } @empty {
+      <span>Нет товаров</span>
+    }
+  </ul>
+</section>

@@ -1,0 +1,22 @@
+<section>
+  <h1>Бизнес-операции</h1>
+
+  <ul>
+    @for (operation of operations; track operation.id) {
+      <li>
+        <span>Дата: {{operation.date}}</span>
+        <span>Тип операции: {{operation.operation_type}}</span>
+        <span>ID операции: {{operation.operation_id}}</span>
+        <span>Кол-во товара: {{operation.goods_count}}</span>
+        <span>ID товара: {{operation.goods_id}}</span>
+        <span>ID секции: {{operation.section_id}}</span>
+        <span>ID контрактора: {{operation.contractors_id}}</span>
+        <span>Имя контрактора: {{operation.contract.name}}</span>
+        <span>ИНН контрактора: {{operation.contract.inn}}</span>
+        <span>Тип контрактора: {{operation.contract.type}}</span>
+      </li>
+    } @empty {
+      <span>Нет операций</span>
+    }
+  </ul>
+</section>

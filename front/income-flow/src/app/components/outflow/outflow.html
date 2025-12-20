@@ -1,0 +1,12 @@
+<section>
+  <h1>Отправить</h1>
+
+  <div>
+    <input type="number" [field]="form.goods_id" placeholder="ID товара" />
+    <input type="number" [field]="form.section_id" placeholder="ID секции" />
+    <input type="number" [field]="form.contractors_id" placeholder="ID контрактора" />
+    <input type="number" [field]="form.goods_count" placeholder="Кол-во товара" />
+  </div>
+
+  <button matButton="elevated" (click)="outflow()">Оформить отправление товара</button>
+</section>

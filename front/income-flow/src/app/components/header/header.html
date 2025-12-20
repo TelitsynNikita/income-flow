@@ -1,0 +1,23 @@
+<header>
+  <nav>
+    <ul>
+      <li>
+        <a routerLink="/goods">Товары</a>
+      </li>
+      <li>
+        <a routerLink="/business-operations">Бизнес-операции</a>
+      </li>
+      <li>
+        <a routerLink="/income">Получить</a>
+      </li>
+      <li>
+        <a routerLink="/outflow">Отправить</a>
+      </li>
+    </ul>
+  </nav>
+  <div class="button-wrapper">
+    <button matButton="elevated" (click)="openCreateGoodsDialog()">Создать товар</button>
+    <button matButton="elevated" (click)="openCreateSectionDialog()">Создать секцию</button>
+    <button matButton="elevated" (click)="openCreateContractorDialog()">Создать контрактора</button>
+  </div>
+</header>

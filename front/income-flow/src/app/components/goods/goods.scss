@@ -1,0 +1,30 @@
+section {
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  h1 {
+    margin: 0 auto;
+  }
+
+  ul {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 10px;
+
+    li {
+      padding: 1rem;
+      background-color: #666;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      span {
+        color: #fff;
+        font-weight: 600;
+      }
+    }
+  }
+}

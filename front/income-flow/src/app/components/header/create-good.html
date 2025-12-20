@@ -1,0 +1,9 @@
+<div class="dialog">
+  <h2>Создание товара</h2>
+  <div>
+    <input type="search" [field]="form.name" placeholder="Название" />
+    <input type="search" [field]="form.description" placeholder="Описание" />
+    <input type="number" [field]="form.volume" placeholder="Кол-во" />
+  </div>
+  <button matButton (click)="onNoClick()">Создать</button>
+</div>
