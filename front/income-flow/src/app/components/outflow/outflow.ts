@@ -1,7 +1,7 @@
-import {Component, signal, inject} from '@angular/core';
-import {MatButtonModule} from '@angular/material/button';
+import { Component, signal, inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { form, Field } from '@angular/forms/signals'
-import {OutflowService} from './outflow.service';
+import { OutflowService } from './outflow.service';
 
 @Component({
   selector: 'app-outflow',

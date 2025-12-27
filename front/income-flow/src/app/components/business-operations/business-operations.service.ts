@@ -1,6 +1,6 @@
-import {inject, Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {map, Observable} from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { map, Observable } from 'rxjs';
 
 interface Contractor {
   name: string;
@@ -34,7 +34,7 @@ interface Result {
   res: BusinessOperation2[]
 }
 
-@Injectable({providedIn: 'root'})
+@Injectable( {providedIn: 'root'} )
 export class BusinessOperationsService {
   private http = inject(HttpClient);
   private url = 'http://localhost:8080'

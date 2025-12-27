@@ -1,12 +1,12 @@
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
-import {MatButtonModule} from '@angular/material/button';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import {
   MatDialog,
   MatDialogRef,
 } from '@angular/material/dialog';
 import { form, Field } from '@angular/forms/signals'
-import {GoodsService} from './header.service';
-import {RouterLink} from '@angular/router';
+import { GoodsService } from './header.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-header',

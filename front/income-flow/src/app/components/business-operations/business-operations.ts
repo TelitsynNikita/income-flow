@@ -11,7 +11,7 @@ import {App} from '../../app';
 export class BusinessOperations {
   readonly businessOperationForm = inject(BusinessOperationsService);
   operations: BusinessOperation[] = [];
-  operations2: {date: string, operation_id: number, values: BusinessOperation2[]}[] | undefined = [];
+  operations2: {date: string, operation_id: number, values: BusinessOperation2[]}[] = [];
 
   constructor(private app: App) {
     this.businessOperationForm.getOperations()

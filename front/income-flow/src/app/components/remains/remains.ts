@@ -1,6 +1,5 @@
-import {Component, inject} from '@angular/core';
-import {App} from '../../app';
-import {Remain, RemainsService} from './remains.service';
+import { Component, inject } from '@angular/core';
+import { Remain, RemainsService } from './remains.service';
 
 @Component({
   selector: 'app-remains',
@@ -12,7 +11,7 @@ export class Remains {
   readonly goodsService = inject(RemainsService);
   remains: Remain[] = [];
 
-  constructor(private app: App) {
+  constructor() {
     this.goodsService.getRemains()
       .subscribe(res => {
         this.remains = res;

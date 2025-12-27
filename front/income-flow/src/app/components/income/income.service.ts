@@ -1,7 +1,7 @@
-import {inject, Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
-@Injectable({providedIn: 'root'})
+@Injectable( {providedIn: 'root'} )
 export class IncomeService {
   private http = inject(HttpClient);
   private url = 'http://localhost:8080'
