@@ -53,7 +53,7 @@ func (h *Handler) Outflow(c *fiber.Ctx) error {
 
 	id, err := h.Service.IncomeService.Outflow(c, outflow)
 	if err != nil {
-		logrus.Error(fmt.Sprintf("failed to income id: %v", err))
+		logrus.Error(fmt.Sprintf("failed to outflow id: %v", err))
 		return fiber.ErrInternalServerError
 	}
 
@@ -65,9 +65,19 @@ func (h *Handler) Outflow(c *fiber.Ctx) error {
 func (h *Handler) GetBusinessOperations(c *fiber.Ctx) error {
 	businessOperations, err := h.Service.IncomeService.GetBusinessOperations(c)
 	if err != nil {
-		logrus.Error(fmt.Sprintf("failed to income id: %v", err))
+		logrus.Error(fmt.Sprintf("failed to get bussines operations: %v", err))
 		return fiber.ErrInternalServerError
 	}
 
 	return c.JSON(businessOperations)
+}
+
+func (h *Handler) GetRemains(c *fiber.Ctx) error {
+	remains, err := h.Service.IncomeService.GetRemains(c)
+	if err != nil {
+		logrus.Error(fmt.Sprintf("failed to get remains: %v", err))
+		return fiber.ErrInternalServerError
+	}
+
+	return c.JSON(remains)
 }

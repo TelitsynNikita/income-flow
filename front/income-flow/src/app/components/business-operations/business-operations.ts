@@ -1,5 +1,5 @@
 import {Component, inject} from '@angular/core';
-import {BusinessOperation, BusinessOperationsService} from './business-operations.service';
+import {BusinessOperation, BusinessOperation2, BusinessOperationsService} from './business-operations.service';
 import {App} from '../../app';
 
 @Component({
@@ -11,11 +11,22 @@ import {App} from '../../app';
 export class BusinessOperations {
   readonly businessOperationForm = inject(BusinessOperationsService);
   operations: BusinessOperation[] = [];
+  operations2: {date: string, operation_id: number, values: BusinessOperation2[]}[] | undefined = [];
 
   constructor(private app: App) {
     this.businessOperationForm.getOperations()
       .subscribe(res => {
         this.operations = res;
       })
+
+    this.businessOperationForm.getOperations2().subscribe(res => {
+      res.forEach((value, key) => {
+        this.operations2?.push({
+          date: key,
+          operation_id: value[0]?.operation_id,
+          values: value
+        })
+      })
+    })
   }
 }

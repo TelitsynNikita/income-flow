@@ -25,19 +25,6 @@ section {
         color: #fff;
         font-weight: 600;
       }
-
-      .inside-list {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-
-        li {
-          display: flex;
-          flex-direction: row;
-          justify-content: space-between;
-          gap: 1rem;
-        }
-      }
     }
   }
 }

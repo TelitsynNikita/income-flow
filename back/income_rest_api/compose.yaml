@@ -1,5 +1,5 @@
 services:
-  income_db:
+  db:
     image: postgres:15.7
     restart: unless-stopped
     environment:

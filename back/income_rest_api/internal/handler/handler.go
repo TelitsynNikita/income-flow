@@ -30,6 +30,7 @@ func (h *Handler) InitRoutes() *fiber.App {
 	operations.Post("/income", h.Income)
 	operations.Post("/outflow", h.Outflow)
 	operations.Get("/get_business_operations", h.GetBusinessOperations)
+	operations.Get("/get_remains", h.GetRemains)
 
 	contractors := router.Group("/contractors")
 	contractors.Post("/create", h.ContractorsCreate)

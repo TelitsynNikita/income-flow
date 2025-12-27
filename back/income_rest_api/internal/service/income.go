@@ -42,3 +42,7 @@ func (i *Income) GetBusinessOperations(c *fiber.Ctx) ([]model.BusinessOperation,
 func (i *Income) CreateSection(c *fiber.Ctx, section model.Section) (uint, error) {
 	return i.repo.CreateSection(c, section)
 }
+
+func (i *Income) GetRemains(c *fiber.Ctx) ([]model.Remain, error) {
+	return i.repo.GetRemains(c)
+}

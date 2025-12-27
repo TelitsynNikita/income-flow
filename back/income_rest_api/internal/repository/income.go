@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"income-flow/internal/model"
 
@@ -48,7 +50,6 @@ func (p *IncomePostgres) GetAll(c *fiber.Ctx) ([]model.Good, error) {
 	defer tx.Rollback()
 
 	var goods []model.Good
-
 	query := fmt.Sprintf("SELECT * FROM %s ORDER BY id DESC", goodsTable)
 	err = p.db.SelectContext(c.Context(), &goods, query)
 	if err != nil {
@@ -66,7 +67,6 @@ func (p *IncomePostgres) Income(c *fiber.Ctx, income model.Income) (uint, error)
 	defer tx.Rollback()
 
 	var id uint
-
 	query := fmt.Sprintf("INSERT INTO %s (goods_id, section_id, goods_count, contractors_id) VALUES ($1, $2, $3, $4) RETURNING id", incomeTable)
 	row := p.db.QueryRowContext(c.Context(), query, income.GoodsID, income.SectionID, income.GoodsCount, income.ContractorsID)
 	if row.Err() != nil {
@@ -84,7 +84,25 @@ func (p *IncomePostgres) Income(c *fiber.Ctx, income model.Income) (uint, error)
 		return 0, row.Err()
 	}
 
-	return id, tx.Commit()
+	var remain model.Remain
+	query = fmt.Sprintf("SELECT * FROM %s WHERE section_id = %d;", remainsTable, income.SectionID)
+	err = p.db.GetContext(c.Context(), &remain, query)
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		query = fmt.Sprintf("INSERT INTO %s (goods_id, section_id, goods_count) VALUES ($1, $2, $3)", remainsTable)
+		row = p.db.QueryRowContext(c.Context(), query, income.GoodsID, income.SectionID, income.GoodsCount)
+		if row.Err() != nil {
+			return 0, tx.Rollback()
+		}
+
+		return id, tx.Commit()
+	case err != nil:
+		return 0, err
+	default:
+		query = fmt.Sprintf("UPDATE %s SET goods_count = $1 WHERE section_id = %d", remainsTable, income.SectionID)
+		p.db.ExecContext(c.Context(), query, remain.GoodsCount+income.GoodsCount)
+		return id, tx.Commit()
+	}
 }
 
 func (p *IncomePostgres) Outflow(c *fiber.Ctx, outflow model.Outflow) (uint, error) {
@@ -111,6 +129,18 @@ func (p *IncomePostgres) Outflow(c *fiber.Ctx, outflow model.Outflow) (uint, err
 	row = p.db.QueryRowContext(c.Context(), query, "-", id, outflow.GoodsCount)
 	if row.Err() != nil {
 		return 0, row.Err()
+	}
+
+	var remain model.Remain
+	query = fmt.Sprintf("SELECT * FROM %s WHERE section_id = %d;", remainsTable, outflow.SectionID)
+	err = p.db.GetContext(c.Context(), &remain, query)
+	if err != nil {
+		return 0, err
+	}
+
+	if remain.ID != 0 {
+		query = fmt.Sprintf("UPDATE %s SET goods_count = $1 WHERE section_id = %d", remainsTable, outflow.SectionID)
+		p.db.ExecContext(c.Context(), query, remain.GoodsCount-outflow.GoodsCount)
 	}
 
 	return id, tx.Commit()
@@ -216,4 +246,22 @@ func (p *IncomePostgres) CreateSection(c *fiber.Ctx, section model.Section) (uin
 	}
 
 	return id, tx.Commit()
+}
+
+func (p *IncomePostgres) GetRemains(c *fiber.Ctx) ([]model.Remain, error) {
+	tx, err := p.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	var remains []model.Remain
+
+	query := fmt.Sprintf("SELECT * FROM %s ORDER BY id DESC", remainsTable)
+	err = p.db.SelectContext(c.Context(), &remains, query)
+	if err != nil {
+		return nil, err
+	}
+
+	return remains, tx.Commit()
 }

@@ -1,0 +1,15 @@
+<section>
+  <h1>Остатки</h1>
+
+  <ul>
+    @for (remain of remains; track remain.id) {
+      <li>
+        <span>ID товара: {{remain.goods_id}}</span>
+        <span>ID секции: {{remain.section_id}}</span>
+        <span>Кол-во товара: {{remain.goods_count}}</span>
+      </li>
+    } @empty {
+      <span>Нет остатков</span>
+    }
+  </ul>
+</section>

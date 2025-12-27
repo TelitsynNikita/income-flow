@@ -1,13 +1,13 @@
-package service
+package repository
 
 import (
 	"income-flow/internal/model"
-	"income-flow/internal/repository"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jmoiron/sqlx"
 )
 
-type IncomeService interface {
+type IncomeRepository interface {
 	CreateGoods(c *fiber.Ctx, good model.Good) (uint, error)
 	GetAll(c *fiber.Ctx) ([]model.Good, error)
 	CreateContractor(c *fiber.Ctx, contractor model.Contractor) (uint, error)
@@ -15,14 +15,15 @@ type IncomeService interface {
 	Outflow(c *fiber.Ctx, outflow model.Outflow) (uint, error)
 	GetBusinessOperations(c *fiber.Ctx) ([]model.BusinessOperation, error)
 	CreateSection(c *fiber.Ctx, section model.Section) (uint, error)
+	GetRemains(c *fiber.Ctx) ([]model.Remain, error)
 }
 
-type Service struct {
-	IncomeService
+type Repository struct {
+	IncomeRepository
 }
 
-func NewService(repo repository.Repository) *Service {
-	return &Service{
-		IncomeService: NewIncome(repo.IncomeRepository),
+func NewRepository(income *sqlx.DB, ) Repository {
+	return Repository{
+		IncomeRepository: NewIncomeRepository(income),
 	}
 }
