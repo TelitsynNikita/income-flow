@@ -1,0 +1,5 @@
+operations:
+  get-operation:
+    method: get
+    sql_function: "get_operations"
+    body:
